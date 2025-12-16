@@ -1,30 +1,30 @@
 import api from './apiClient'
 
-// Django DRF token endpoint expects username & password, returns { token }
+// Django JWT token endpoint expects username & password, returns { access, refresh, user }
 export async function login({ username, password }) {
   try {
-    // Asegura limpiar tokens previos antes de intentar login
-    try { localStorage.removeItem('auth_token') } catch {}
+    // Clear any previous tokens
+    localStorage.removeItem('accessToken')
+    localStorage.removeItem('refreshToken')
+    localStorage.removeItem('user')
+    
     const { data } = await api.post(
       '/usuarios/token/',
       { username, password },
-      { headers: { Accept: 'application/json' } },
+      { headers: { 'Content-Type': 'application/json' } }
     )
-    if (data?.token) localStorage.setItem('auth_token', data.token)
+    
+    // Store JWT tokens and user data
+    if (data?.access) {
+      localStorage.setItem('accessToken', data.access)
+      localStorage.setItem('refreshToken', data.refresh)
+      if (data.user) {
+        localStorage.setItem('user', JSON.stringify(data.user))
+      }
+    }
+    
     return data
   } catch (err) {
-    // Fallback por si el backend exige form-urlencoded
-    const status = err?.response?.status
-    if (status === 415 || status === 400) {
-      const form = new URLSearchParams()
-      form.append('username', username)
-      form.append('password', password)
-      const { data } = await api.post('/usuarios/token/', form, {
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded', Accept: 'application/json' },
-      })
-      if (data?.token) localStorage.setItem('auth_token', data.token)
-      return data
-    }
     throw err
   }
 }
@@ -46,5 +46,7 @@ export async function updateProfile(payload) {
 }
 
 export function logout() {
-  localStorage.removeItem('auth_token')
+  localStorage.removeItem('accessToken')
+  localStorage.removeItem('refreshToken')
+  localStorage.removeItem('user')
 }

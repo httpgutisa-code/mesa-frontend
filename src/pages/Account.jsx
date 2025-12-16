@@ -10,7 +10,7 @@ import PageTitle from '../components/common/PageTitle'
 
 export default function Account() {
   const { user, refreshUser } = useAuth()
-  const token = localStorage.getItem('auth_token')
+  const token = localStorage.getItem('accessToken')
   const { supported, subscribed, loading: notifLoading, subscribe, unsubscribe } = usePushNotifications(token)
   const [editing, setEditing] = useState(false)
   const [loading, setLoading] = useState(false)

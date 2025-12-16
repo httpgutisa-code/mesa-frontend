@@ -32,7 +32,7 @@ export default function App() {
     }
 
     // Intentar suscribirse automáticamente (silenciosamente)
-    const token = localStorage.getItem('auth_token')
+    const token = localStorage.getItem('accessToken')
     if (token) {
       subscribeToPushNotifications(token).catch((error) => {
         console.log('No se pudo suscribir automáticamente a notificaciones:', error)

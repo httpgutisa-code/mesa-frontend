@@ -11,7 +11,7 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     let ignore = false
     async function init() {
-      const token = localStorage.getItem('auth_token')
+      const token = localStorage.getItem('accessToken')
       if (!token) { setLoading(false); return }
       try {
         const data = await apiMe()

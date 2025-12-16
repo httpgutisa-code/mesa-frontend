@@ -13,7 +13,7 @@ import VoiceFab from '../components/voice/VoiceFab'
 export default function AppLayout() {
   const location = useLocation()
   const { user } = useAuth()
-  const token = localStorage.getItem('auth_token')
+  const token = localStorage.getItem('accessToken')
   const isAuthPage = location.pathname === '/login' || location.pathname === '/register'
 
   return (
