@@ -47,15 +47,19 @@ export function AuthProvider({ children }) {
   }, [])
 
   const login = async ({ username, password }) => {
+    console.log('🔐 Login attempt started', { username });
     setError(null)
     try {
       const res = await apiLogin({ username, password })
+      console.log('🔐 apiLogin response:', res);
       
       // JWT response includes user data directly
       const userData = res.user
+      console.log('🔐 User data:', userData);
       
       if (userData?.rol && userData.rol !== 'cliente') {
         // Only clientes can use this frontend
+        console.error('🔐 REJECTED: User role is not cliente:', userData.rol);
         apiLogout()
         setUser(null)
         const err = new Error('Solo clientes pueden iniciar sesión en esta aplicación')
@@ -63,9 +67,12 @@ export function AuthProvider({ children }) {
         throw err
       }
       
+      console.log('🔐 Setting user state...');
       setUser(userData)
+      console.log('🔐 Login successful! Returning response');
       return res
     } catch (e) {
+      console.error('🔐 Login error:', e);
       const msg = e?.response?.data?.detail || e?.response?.data?.non_field_errors?.[0] || e.message || 'Credenciales inválidas'
       setError(msg)
       throw e
