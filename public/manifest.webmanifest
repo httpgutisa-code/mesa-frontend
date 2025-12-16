@@ -1,0 +1,43 @@
+{
+  "name": "SmartSales365 - Tu Tienda Online",
+  "short_name": "SmartSales",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#FAFAFC",
+  "theme_color": "#6D28D9",
+  "description": "Tu tienda online de confianza. Compra productos de calidad con envío rápido y los mejores precios.",
+  "categories": ["shopping", "business"],
+  "icons": [
+    {
+      "src": "/android-icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/ms-icon-310x310.png",
+      "sizes": "310x310",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-icon-180x180.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Abrir tienda",
+      "short_name": "Tienda",
+      "url": "/shop"
+    },
+    {
+      "name": "Carrito",
+      "short_name": "Carrito",
+      "url": "/cart"
+    }
+  ]
+}

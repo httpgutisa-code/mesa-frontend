@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="theme-color" content="#6d28d9" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="SmartSales365" />
+    <link rel="apple-touch-icon" href="/apple-icon-180x180.png" />
+    <meta name="msapplication-TileColor" content="#6d28d9" />
+    <meta name="msapplication-TileImage" content="/ms-icon-144x144.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover" />
+    <title>smartsales365</title>
+  </head>
+  <body>
+    <script>
+      (function() {
+        try {
+          const key = 'theme'
+          const saved = localStorage.getItem(key)
+          const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+          const useDark = saved ? saved === 'dark' : prefersDark
+          if (useDark) document.documentElement.classList.add('dark')
+        } catch {}
+      })()
+    </script>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

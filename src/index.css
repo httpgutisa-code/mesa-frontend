@@ -1,0 +1,688 @@
+@import "tailwindcss";
+
+/* Configurar dark mode para usar clase 'dark' */
+@variant dark (&:where(.dark, .dark *));
+
+/* Base design tokens and light/dark handling */
+@layer base {
+  :root {
+    /* Paleta de colores premium - Modo Claro */
+    --bg: 252 252 254; /* Blanco casi puro con matiz lavanda */
+    --fg: 15 23 42; /* Azul marino profundo para texto */
+    --muted: 100 116 139; /* Gris azulado suave */
+    --card: 255 255 255; /* Blanco puro para tarjetas */
+    --surface-hover: 248 249 252; /* Lavanda muy tenue */
+    --border-rgb: 226 232 240; /* Gris platino para bordes */
+    
+    /* Paleta de colores primarios NUEVA - Azul eléctrico elegante */
+    --primary: 210 100% 50%; /* Azul eléctrico vibrante #0080ff */
+    --primary-hover: 210 100% 45%; /* Azul más intenso */
+    --primary-light: 210 100% 96%; /* Azul hielo muy claro */
+    --primary-700: 210 100% 40%; /* Azul profundo */
+    
+    /* Colores de acento NUEVOS - Turquesa premium */
+    --accent: 178 70% 48%; /* Turquesa premium #26B7A8 */
+    --accent-hover: 178 70% 42%; /* Turquesa oscuro */
+    --success: 152 69% 48%; /* Verde esmeralda brillante */
+    --warning: 36 100% 60%; /* Naranja dorado */
+    --error: 3 85% 58%; /* Rojo coral vibrante */
+    --success-strong: 152 65% 38%; /* Verde intenso */
+    
+    /* Sombras elegantes con más profundidad */
+    --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.08), 0 1px 2px -1px rgb(0 0 0 / 0.06);
+    --shadow-md: 0 4px 8px -2px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.06);
+    --shadow-lg: 0 10px 20px -5px rgb(0 0 0 / 0.12), 0 4px 8px -4px rgb(0 0 0 / 0.08);
+    --shadow-xl: 0 20px 30px -8px rgb(0 0 0 / 0.15), 0 8px 12px -6px rgb(0 0 0 / 0.1);
+    
+    /* Gradientes premium */
+    --gradient-primary: linear-gradient(135deg, hsl(210 100% 50%) 0%, hsl(178 70% 48%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(178 70% 48%) 0%, hsl(152 69% 48%) 100%);
+    
+    color-scheme: light;
+  }
+  
+  :root.dark {
+    /* Paleta de colores premium - Modo Oscuro */
+    --bg: 10 12 18; /* Azul marino casi negro */
+    --fg: 248 250 252; /* Texto claro */
+    --muted: 148 163 184; /* Gris azulado */
+    --card: 20 24 32; /* Azul oscuro para tarjetas */
+    --surface-hover: 28 32 42; /* Azul grisáceo */
+    --border-rgb: 255 255 255; /* Blanco para bordes */
+    --primary: 210 100% 58%; /* Azul brillante más claro en dark mode */
+    --primary-hover: 210 100% 63%; /* Azul luminoso */
+    --primary-light: 210 80% 20%; /* Azul oscuro */
+    --primary-700: 210 100% 55%; /* Azul eléctrico */
+    --accent: 178 70% 55%; /* Turquesa brillante */
+    --accent-hover: 178 70% 60%; /* Turquesa luminoso */
+    --success: 152 69% 55%; /* Verde brillante */
+    --warning: 36 100% 65%; /* Naranja brillante */
+    --error: 3 85% 62%; /* Rojo coral brillante */
+    --success-strong: 152 65% 48%; /* Verde intenso */
+    
+    color-scheme: dark;
+  }
+  
+  /* Global borders will be set per component to avoid unknown utilities */
+  
+  body {
+    @apply bg-[rgb(var(--bg))] text-[rgb(var(--fg))] antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@layer utilities {
+  /* Z-index hierarchy system - Jerarquía de capas DEFINITIVA */
+  /* 
+    0-9:   Contenido base (páginas, cards, formularios)
+    10-39: Elementos elevados (dropdowns, tooltips)
+    40-59: Elementos fijos secundarios (bottom bars)
+    60-79: Notificaciones y banners (InstallPWA)
+    80-99: Modales y overlays secundarios (VoiceAssistant, GlobalOverlay)
+    100:   Navbar principal (sticky top, siempre visible)
+    110:   Loaders y Toasts (sobre navbar)
+    1000+: Modales críticos (ModalDevolucion)
+    9998:  Sidebar overlay (backdrop)
+    9999:  Sidebar panel (MÁXIMA PRIORIDAD)
+  */
+  
+  /* Tipografía escalable */
+  .h1 { @apply text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight; }
+  .h2 { @apply text-2xl sm:text-3xl font-semibold tracking-tight; }
+  .subtitle { @apply text-sm sm:text-base text-gray-600 dark:text-gray-400; }
+
+  /* Contenedor responsive mejorado */
+  .container-responsive {
+    @apply mx-auto w-full px-4 sm:px-6 lg:px-8 max-w-7xl;
+  }
+
+  /* Superficies y tarjetas premium con efectos elegantes */
+  .card-surface {
+    @apply bg-[rgb(var(--card))] rounded-2xl border border-[rgb(var(--border-rgb))]/15 
+           shadow-[0_2px_8px_rgba(0,0,0,0.04)] backdrop-blur-sm;
+  }
+  
+  .card-hover {
+    @apply transition-all duration-300 ease-out 
+           hover:shadow-[0_8px_24px_rgba(0,0,0,0.1)] hover:-translate-y-1
+           hover:border-[hsl(var(--primary))]/20;
+  }
+  
+  .surface-hover {
+    @apply bg-[rgb(var(--surface-hover))];
+  }
+  
+  .hover-surface {
+    @apply transition-all duration-200 ease-out hover:bg-[rgb(var(--surface-hover))];
+  }
+
+  /* Botones premium con gradientes y efectos modernos */
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-xl px-6 py-3 text-sm font-bold text-white 
+           bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--accent))]
+           hover:shadow-[0_8px_20px_rgba(0,128,255,0.35)] hover:scale-[1.02]
+           active:scale-[0.98] active:shadow-md
+           transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed
+           disabled:hover:scale-100 disabled:hover:shadow-none;
+  }
+  .btn-sm { @apply px-4 py-2 text-xs rounded-lg; }
+  .btn-lg { @apply px-8 py-4 text-base rounded-xl; }
+  
+  .btn-outline {
+    @apply inline-flex items-center justify-center rounded-xl px-6 py-3 text-sm font-bold
+           border-2 border-[hsl(var(--primary))]/40 text-[hsl(var(--primary))]
+           hover:bg-[hsl(var(--primary))]/5 hover:border-[hsl(var(--primary))]/60
+           hover:shadow-[0_4px_12px_rgba(0,128,255,0.15)]
+           active:scale-[0.98] transition-all duration-200 
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  
+  .btn-ghost {
+    @apply inline-flex items-center justify-center rounded-xl px-4 py-2.5 text-sm font-semibold
+           hover:bg-[rgb(var(--surface-hover))] hover:shadow-sm
+           active:scale-[0.98] transition-all duration-200;
+  }
+
+  /* Badges y chips con diseño premium */
+  .badge-success {
+    @apply inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-bold
+           bg-gradient-to-r from-[hsl(var(--success))]/20 to-[hsl(var(--success))]/10 
+           text-[hsl(var(--success-strong))] 
+           border border-[hsl(var(--success))]/30 shadow-sm
+           dark:bg-gradient-to-r dark:from-[hsl(var(--success))]/25 dark:to-[hsl(var(--success))]/15 
+           dark:text-[hsl(var(--success))];
+  }
+  
+  .badge-warning {
+    @apply inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-bold
+           bg-gradient-to-r from-[hsl(var(--warning))]/20 to-[hsl(var(--warning))]/10
+           text-amber-800 border border-[hsl(var(--warning))]/30 shadow-sm
+           dark:bg-gradient-to-r dark:from-[hsl(var(--warning))]/25 dark:to-[hsl(var(--warning))]/15
+           dark:text-amber-300;
+  }
+  
+  .badge-error {
+    @apply inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-bold
+           bg-gradient-to-r from-[hsl(var(--error))]/20 to-[hsl(var(--error))]/10
+           text-red-800 border border-[hsl(var(--error))]/30 shadow-sm
+           dark:bg-gradient-to-r dark:from-[hsl(var(--error))]/25 dark:to-[hsl(var(--error))]/15
+           dark:text-red-300;
+  }
+
+  /* Callouts modernos */
+  .callout-success {
+    @apply rounded-xl p-4 bg-[hsl(var(--success))]/10 border border-[hsl(var(--success))]/30
+           text-[hsl(var(--success-strong))] dark:text-[hsl(var(--success))];
+  }
+  
+  .callout-info {
+    @apply rounded-xl p-4 bg-[hsl(var(--primary))]/10 border border-[hsl(var(--primary))]/30
+           text-[hsl(var(--primary-700))];
+  }
+
+  /* Bordes */
+  .border-subtle {
+    @apply border-[rgb(var(--border-rgb))]/20;
+  }
+
+  /* Inputs premium con efectos glassmorphism */
+  .input {
+    @apply w-full rounded-xl border-2 border-[rgb(var(--border-rgb))]/20 
+           bg-[rgb(var(--card))]/80 backdrop-blur-sm px-4 py-3 text-sm
+           transition-all duration-300 ease-out
+           placeholder:text-[rgb(var(--muted))]/40
+           focus:border-[hsl(var(--primary))]/60 focus:ring-4 focus:ring-[hsl(var(--primary))]/10 
+           focus:outline-none focus:shadow-[0_0_0_3px_rgba(0,128,255,0.1)]
+           hover:border-[rgb(var(--border-rgb))]/40
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  /* Texto con gradiente premium */
+  .gradient-text {
+    @apply bg-gradient-to-r from-[hsl(var(--primary))] via-[hsl(var(--accent))] to-[hsl(var(--primary))]
+           bg-clip-text text-transparent font-extrabold
+           bg-[length:200%_auto];
+    animation: gradient 3s ease infinite;
+  }
+  
+  @keyframes gradient {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+
+  /* Animaciones de página */
+  .page-anim {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+
+  @keyframes fadeIn {
+    from { 
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to { 
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Scrollbar personalizado */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-[rgb(var(--surface-hover))];
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-[rgb(var(--muted))]/30 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-[rgb(var(--muted))]/50;
+  }
+
+  /* Focus visible mejorado */
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-[hsl(var(--primary))]/50;
+  }
+}
+
+/* Transiciones globales */
+@layer base {
+  * {
+    @apply transition-colors duration-200;
+  }
+}
+
+/* Mejoras para móviles */
+@media (max-width: 640px) {
+  .container-responsive {
+    @apply px-3;
+  }
+  
+  .card-surface {
+    @apply rounded-lg;
+  }
+  
+  .btn-primary, .btn-outline, .btn-ghost {
+    @apply rounded-lg;
+  }
+  
+  /* Mejor espaciado y tamaño para elementos táctiles */
+  button, a {
+    -webkit-tap-highlight-color: transparent;
+    min-height: 44px; /* Tamaño mínimo recomendado para elementos táctiles */
+  }
+  
+  /* Inputs más grandes para mejor usabilidad móvil */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="search"],
+  input[type="number"],
+  input[type="tel"],
+  textarea,
+  select {
+    font-size: 16px; /* Previene zoom automático en iOS */
+  }
+}
+
+/* PWA Optimizations */
+@media (display-mode: standalone) {
+  body {
+    @apply select-none;
+  }
+  
+  button {
+    -webkit-tap-highlight-color: transparent;
+  }
+  /* Safe area helpers for iOS PWAs */
+  .pwa-safe-top {
+    padding-top: env(safe-area-inset-top);
+    padding-top: constant(safe-area-inset-top);
+  }
+  .pwa-safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-bottom: constant(safe-area-inset-bottom);
+  }
+}
+
+/* Animaciones adicionales */
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInFromLeft {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInFromBottom {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes pulse-slow {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.4s ease-out;
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Animaciones para overlays y paneles móviles */
+.animate-in {
+  animation-duration: 0.3s;
+  animation-fill-mode: both;
+}
+
+.slide-in-from-left {
+  animation-name: slideInFromLeft;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.slide-in-from-bottom {
+  animation-name: slideInFromBottom;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.slide-in-from-top-4 {
+  animation-name: slideUp;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.fade-in {
+  animation-name: fadeIn;
+  animation-timing-function: ease-out;
+}
+
+/* ========================================
+   TRUCOS VISUALES PWA - Experiencia Premium
+   ======================================== */
+
+/* Smooth scrolling nativo */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    /* Previene el bounce en iOS */
+    overscroll-behavior-y: contain;
+  }
+  
+  /* Optimizaciones para mejor rendimiento */
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* Scrollbar oculto pero funcional (para listas horizontales) */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Scrollbar estilizado mejorado para PWA */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 dark:bg-gray-600 rounded-full;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-400 dark:bg-gray-500;
+}
+
+/* Pull to refresh visual hint (solo decorativo) */
+@keyframes pullHint {
+  0%, 100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  50% {
+    transform: translateY(5px);
+    opacity: 0.8;
+  }
+}
+
+.pull-to-refresh-hint {
+  animation: pullHint 2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Skeleton loading mejorado con shimmer effect */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgb(var(--surface-hover)) 0%,
+    rgb(var(--card)) 50%,
+    rgb(var(--surface-hover)) 100%
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite linear;
+}
+
+/* Glassmorphism effect para barras y overlays */
+.glass-effect {
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  background-color: rgba(var(--bg), 0.8);
+}
+
+/* Transiciones suaves para cambios de layout */
+.layout-transition {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Active states mejorados con feedback visual instantáneo */
+.touch-feedback {
+  transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.touch-feedback:active {
+  transform: scale(0.96);
+}
+
+/* Indicador de carga inline (puntos) */
+@keyframes dotPulse {
+  0%, 80%, 100% {
+    opacity: 0.3;
+  }
+  40% {
+    opacity: 1;
+  }
+}
+
+.loading-dots span {
+  animation: dotPulse 1.4s infinite ease-in-out;
+}
+
+.loading-dots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.loading-dots span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+/* Optimistic UI - Fade out cuando se elimina */
+.optimistic-remove {
+  animation: fadeOut 0.3s ease-out forwards;
+}
+
+@keyframes fadeOut {
+  to {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+}
+
+/* Highlight temporal para nuevos elementos */
+@keyframes highlight {
+  0% {
+    background-color: rgba(var(--primary), 0.2);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+.item-highlight {
+  animation: highlight 1s ease-out;
+}
+
+/* Mejoras para inputs en PWA */
+@layer utilities {
+  .input-smooth {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .input-smooth:focus {
+    transform: translateY(-1px);
+  }
+}
+
+/* ===============================
+   Hero Banner Animated Visuals
+   =============================== */
+@layer utilities {
+  .hero-anim {
+    position: relative;
+    isolation: isolate;
+  }
+  .hero-orb {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(8px);
+    will-change: transform, opacity;
+    mix-blend-mode: screen;
+    opacity: 0.9;
+  }
+  .hero-orb-a {
+    background: radial-gradient(circle at 30% 30%, hsla(210,100%,60%,0.9), hsla(178,70%,50%,0.35) 60%, transparent 70%);
+    animation: drift 12s ease-in-out infinite;
+  }
+  .hero-orb-b {
+    background: radial-gradient(circle at 70% 40%, hsla(178,70%,55%,0.9), hsla(210,100%,50%,0.3) 60%, transparent 70%);
+    animation: drift 14s ease-in-out infinite reverse;
+  }
+  .hero-orb-c {
+    background: radial-gradient(circle at 50% 60%, hsla(210,100%,65%,0.85), hsla(210,100%,50%,0.25) 60%, transparent 70%);
+    animation: floatY 10s ease-in-out infinite;
+  }
+  .hero-ring {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: 70%;
+    height: 70%;
+    border-radius: 9999px;
+    border: 2px dashed hsla(210,100%,60%,0.5);
+    animation: rotateSlow 20s linear infinite;
+    box-shadow: 0 0 80px rgba(0,128,255,0.2) inset;
+  }
+  .hero-spark {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    border-radius: 9999px;
+    background: radial-gradient(circle, white, rgba(255,255,255,0.2) 60%, transparent 70%);
+    animation: rise 6s ease-in-out infinite;
+    opacity: 0.8;
+  }
+}
+
+@keyframes floatY {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+
+@keyframes drift {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(12px, -18px, 0) scale(1.05); }
+  100% { transform: translate3d(0, 0, 0) scale(1); }
+}
+
+@keyframes rotateSlow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes rise {
+  0% { transform: translateY(20px) scale(0.9); opacity: 0; }
+  40% { opacity: 0.9; }
+  100% { transform: translateY(-30px) scale(1); opacity: 0; }
+}
+
+/* Prevenir selección de texto en elementos interactivos */
+.no-select {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* iOS style momentum scrolling */
+.momentum-scroll {
+  -webkit-overflow-scrolling: touch;
+  overflow-y: auto;
+}
+
+/* Indicador de "swipe" para elementos deslizables */
+.swipe-indicator {
+  position: relative;
+}
+
+.swipe-indicator::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 40px;
+  background: linear-gradient(to left, rgb(var(--bg)), transparent);
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+/* Notch support para iOS 14+ */
+@supports (padding: max(0px)) {
+  .safe-area-inset-top {
+    padding-top: max(env(safe-area-inset-top), 0px);
+  }
+  
+  .safe-area-inset-bottom {
+    padding-bottom: max(env(safe-area-inset-bottom), 0px);
+  }
+}
+
+/* Reducir motion para accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
