@@ -14,6 +14,14 @@ const api = axios.create({
 
 // Attach JWT Bearer token if present
 api.interceptors.request.use((config) => {
+  // DEBUG: Log request details
+  console.log('🔍 Axios Request:', {
+    url: config.url,
+    method: config.method,
+    headers: config.headers,
+    data: config.data
+  });
+  
   try { startLoading() } catch {}
   const token = localStorage.getItem('accessToken')
   if (token) config.headers.Authorization = `Bearer ${token}`
@@ -38,10 +46,25 @@ const processQueue = (error, token = null) => {
 api.interceptors.response.use(
   (res) => {
     try { stopLoading() } catch {}
+    console.log('✅ Axios Response:', res.status, res.data);
     return res
   },
   async (err) => {
     try { stopLoading() } catch {}
+    
+    // DEBUG: Log error details
+    console.error('❌ Axios Error:', {
+      status: err?.response?.status,
+      statusText: err?.response?.statusText,
+      data: err?.response?.data,
+      headers: err?.response?.headers,
+      config: {
+        url: err?.config?.url,
+        method: err?.config?.method,
+        headers: err?.config?.headers,
+        data: err?.config?.data
+      }
+    });
     
     const originalRequest = err.config
 
