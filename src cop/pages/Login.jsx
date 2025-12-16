@@ -13,18 +13,25 @@ export default function Login() {
 
   const onSubmit = async (e) => {
     e.preventDefault()
+    console.log('📝 Form submitted');
     try {
       setLoading(true)
+      console.log('📝 Calling login...');
       await login(form)
+      console.log('📝 Login returned successfully! Checking redirect...');
       // Redirect to intended path if stored by 401 handler
       const intended = sessionStorage.getItem('post_login_redirect')
       if (intended) {
+        console.log('📝 Redirecting to intended path:', intended);
         sessionStorage.removeItem('post_login_redirect')
         navigate(intended, { replace: true })
       } else {
+        console.log('📝 Redirecting to ROUTES.account:', ROUTES.account);
         navigate(ROUTES.account)
       }
+      console.log('📝 Navigate called!');
     } catch (err) {
+      console.error('📝 Login failed in component:', err);
       // El contexto ya intentó inferir el mensaje del backend; si no, muestra uno genérico
       if (!error) setError('Credenciales inválidas')
     } finally {

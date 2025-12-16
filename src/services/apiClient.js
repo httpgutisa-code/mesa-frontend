@@ -8,146 +8,38 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  // JWT Auth no requiere cookies
+  // Token Auth no requiere cookies; desactivar credenciales evita preflight estricto y problemas CORS
   withCredentials: false,
 })
 
-// Attach JWT Bearer token if present
+// Attach Token auth if present (Django DRF TokenAuth style)
 api.interceptors.request.use((config) => {
-  // DEBUG: Log request details
-  console.log('🔍 Axios Request:', {
-    url: config.url,
-    method: config.method,
-    headers: config.headers,
-    data: config.data
-  });
-  
   try { startLoading() } catch {}
-  const token = localStorage.getItem('accessToken')
-  if (token) config.headers.Authorization = `Bearer ${token}`
+  const token = localStorage.getItem('auth_token')
+  if (token) config.headers.Authorization = `Token ${token}`
   return config
 })
-
-// Variable para evitar loops infinitos en refresh
-let isRefreshing = false
-let failedQueue = []
-
-const processQueue = (error, token = null) => {
-  failedQueue.forEach(prom => {
-    if (error) {
-      prom.reject(error)
-    } else {
-      prom.resolve(token)
-    }
-  })
-  failedQueue = []
-}
 
 api.interceptors.response.use(
   (res) => {
     try { stopLoading() } catch {}
-    console.log('✅ Axios Response:', res.status, res.data);
     return res
   },
-  async (err) => {
+  (err) => {
     try { stopLoading() } catch {}
-    
-    // DEBUG: Log error details
-    console.error('❌ Axios Error:', {
-      status: err?.response?.status,
-      statusText: err?.response?.statusText,
-      data: err?.response?.data,
-      headers: err?.response?.headers,
-      config: {
-        url: err?.config?.url,
-        method: err?.config?.method,
-        headers: err?.config?.headers,
-        data: err?.config?.data
-      }
-    });
-    
-    const originalRequest = err.config
-
-    // Handle 401 errors - Token Refresh
-    if (err?.response?.status === 401 && !originalRequest._retry) {
-      if (isRefreshing) {
-        // Si ya estamos refrescando, poner en cola
-        return new Promise((resolve, reject) => {
-          failedQueue.push({ resolve, reject })
-        }).then(token => {
-          originalRequest.headers.Authorization = `Bearer ${token}`
-          return api(originalRequest)
-        }).catch(err => {
-          return Promise.reject(err)
-        })
-      }
-
-      originalRequest._retry = true
-      isRefreshing = true
-
-      const refreshToken = localStorage.getItem('refreshToken')
-      
-      if (!refreshToken) {
-        // No hay refresh token, logout
-        try {
-          localStorage.removeItem('accessToken')
-          localStorage.removeItem('refreshToken')
-          localStorage.removeItem('user')
-        } catch {}
-        
-        try {
-          const here = window.location?.pathname + window.location?.search
-          sessionStorage.setItem('post_login_redirect', here)
-          const path = '/login'
-          if (!window.location.pathname.startsWith(path)) {
-            window.location.assign(path)
-          }
-        } catch {}
-        
-        return Promise.reject(err)
-      }
-
+    // Optionally handle 401s globally
+    if (err?.response?.status === 401) {
+      // clear invalid token
+      try { localStorage.removeItem('auth_token') } catch {}
       try {
-        // Intentar refrescar el token
-        const { data } = await axios.post(`${API_URL}/api/usuarios/token/refresh/`, {
-          refresh: refreshToken
-        })
-
-        const newAccessToken = data.access
-        localStorage.setItem('accessToken', newAccessToken)
-        
-        // Actualizar el header de la request original
-        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`
-        
-        processQueue(null, newAccessToken)
-        isRefreshing = false
-        
-        // Reintentar la request original
-        return api(originalRequest)
-      } catch (refreshError) {
-        // Refresh falló, logout
-        processQueue(refreshError, null)
-        isRefreshing = false
-        
-        try {
-          localStorage.removeItem('accessToken')
-          localStorage.removeItem('refreshToken')
-          localStorage.removeItem('user')
-        } catch {}
-        
-        try {
-          const here = window.location?.pathname + window.location?.search
-          sessionStorage.setItem('post_login_redirect', here)
-          const path = '/login'
-          if (!window.location.pathname.startsWith(path)) {
-            window.location.assign(path)
-          }
-        } catch {}
-        
-        return Promise.reject(refreshError)
-      }
+        const here = window.location?.pathname + window.location?.search
+        sessionStorage.setItem('post_login_redirect', here)
+        const path = '/login'
+        if (!window.location.pathname.startsWith(path)) {
+          window.location.assign(path)
+        }
+      } catch {}
     }
-    
     return Promise.reject(err)
   },
 )

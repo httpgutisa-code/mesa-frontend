@@ -11,11 +11,29 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     let ignore = false
     async function init() {
-      const token = localStorage.getItem('auth_token')
+      // Check for JWT access token
+      const token = localStorage.getItem('accessToken')
+      const storedUser = localStorage.getItem('user')
+      
       if (!token) { setLoading(false); return }
+      
+      // Try to use stored user first
+      if (storedUser) {
+        try {
+          const userData = JSON.parse(storedUser)
+          if (!ignore) setUser(userData)
+          setLoading(false)
+          return
+        } catch {}
+      }
+      
+      // If no stored user, fetch from API
       try {
         const data = await apiMe()
-        if (!ignore) setUser(data)
+        if (!ignore) {
+          setUser(data)
+          localStorage.setItem('user', JSON.stringify(data))
+        }
       } catch (e) {
         if (!ignore) {
           setUser(null)
@@ -29,22 +47,32 @@ export function AuthProvider({ children }) {
   }, [])
 
   const login = async ({ username, password }) => {
+    console.log('🔐 Login attempt started', { username });
     setError(null)
     try {
       const res = await apiLogin({ username, password })
-      // After saving token, fetch current user
-      const data = await apiMe()
-      if (data?.rol && data.rol !== 'cliente') {
+      console.log('🔐 apiLogin response:', res);
+      
+      // JWT response includes user data directly
+      const userData = res.user
+      console.log('🔐 User data:', userData);
+      
+      if (userData?.rol && userData.rol !== 'cliente') {
         // Only clientes can use this frontend
+        console.error('🔐 REJECTED: User role is not cliente:', userData.rol);
         apiLogout()
         setUser(null)
         const err = new Error('Solo clientes pueden iniciar sesión en esta aplicación')
         setError(err.message)
         throw err
       }
-      setUser(data)
+      
+      console.log('🔐 Setting user state...');
+      setUser(userData)
+      console.log('🔐 Login successful! Returning response');
       return res
     } catch (e) {
+      console.error('🔐 Login error:', e);
       const msg = e?.response?.data?.detail || e?.response?.data?.non_field_errors?.[0] || e.message || 'Credenciales inválidas'
       setError(msg)
       throw e
@@ -60,6 +88,7 @@ export function AuthProvider({ children }) {
     try {
       const data = await apiMe()
       setUser(data)
+      localStorage.setItem('user', JSON.stringify(data))
     } catch (e) {
       // If refresh fails, logout
       logout()

@@ -1,26 +1,32 @@
 import api from './apiClient'
 
-// JWT Auth - Django returns { access, refresh, user }
+// Django DRF token endpoint expects username & password, returns { token }
 export async function login({ username, password }) {
-  // Limpiar tokens previos antes de intentar login
   try {
-    localStorage.removeItem('accessToken')
-    localStorage.removeItem('refreshToken')
-    localStorage.removeItem('user')
-  } catch {}
-
-  const { data } = await api.post(
-    '/usuarios/token/',
-    { username, password },
-    { headers: { Accept: 'application/json' } },
-  )
-
-  // Guardar access y refresh tokens
-  if (data?.access) localStorage.setItem('accessToken', data.access)
-  if (data?.refresh) localStorage.setItem('refreshToken', data.refresh)
-  if (data?.user) localStorage.setItem('user', JSON.stringify(data.user))
-
-  return data
+    // Asegura limpiar tokens previos antes de intentar login
+    try { localStorage.removeItem('auth_token') } catch {}
+    const { data } = await api.post(
+      '/usuarios/token/',
+      { username, password },
+      { headers: { Accept: 'application/json' } },
+    )
+    if (data?.token) localStorage.setItem('auth_token', data.token)
+    return data
+  } catch (err) {
+    // Fallback por si el backend exige form-urlencoded
+    const status = err?.response?.status
+    if (status === 415 || status === 400) {
+      const form = new URLSearchParams()
+      form.append('username', username)
+      form.append('password', password)
+      const { data } = await api.post('/usuarios/token/', form, {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded', Accept: 'application/json' },
+      })
+      if (data?.token) localStorage.setItem('auth_token', data.token)
+      return data
+    }
+    throw err
+  }
 }
 
 export async function register(payload) {
@@ -40,16 +46,5 @@ export async function updateProfile(payload) {
 }
 
 export function logout() {
-  localStorage.removeItem('accessToken')
-  localStorage.removeItem('refreshToken')
-  localStorage.removeItem('user')
+  localStorage.removeItem('auth_token')
 }
-
-export function getAccessToken() {
-  return localStorage.getItem('accessToken')
-}
-
-export function getRefreshToken() {
-  return localStorage.getItem('refreshToken')
-}
-
